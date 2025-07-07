@@ -1,78 +1,93 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8" />
-<title>Punkte-Spiel mit globaler Bestenliste</title>
-
-<style>
-  html,body{height:100%;margin:0;overflow:hidden}
-  body{
-    font-family:sans-serif;display:flex;flex-direction:column;
-    justify-content:center;align-items:center;background:#111;color:#fff
-  }
-  /* ---------- YouTube-Hintergrund ---------- */
-  #yt-background{
-    position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;
-    pointer-events:none;overflow:hidden
-  }
-  #yt-background iframe{width:100vw;height:100vh}
-
-  /* ---------- UI-Boxen ---------- */
-  #startScreen{display:flex;flex-direction:column;align-items:center}
-  #gameArea{display:none;flex-direction:column;align-items:center}
-  #points{font-size:2em;margin:20px 0}
-  #congrats{font-size:2em;color:yellow;margin-bottom:10px;display:none}
-  #goBackButton{display:none}
-
-  /* ---------- Bestenliste oben rechts ---------- */
-  #highscoreBox{
-    position:absolute;top:10px;right:10px;z-index:99;
-    background:rgba(0,0,0,.6);padding:10px 14px;border-radius:8px;
-    font-size:.9em;line-height:1.4em
-  }
-
-  input,button{font-size:1.1em;padding:10px 20px;margin:8px}
-</style>
+  <meta charset="UTF-8" />
+  <title>Live Punkte-Spiel</title>
+  <style>
+    body {
+      background: #111;
+      color: #fff;
+      font-family: sans-serif;
+      text-align: center;
+      margin: 0;
+      padding-top: 60px;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 8px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    #points {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    #yt-background {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+    }
+    #yt-background iframe {
+      width: 100%;
+      height: 100%;
+    }
+    #startScreen, #gameArea {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+    }
+    #highscoreBox {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255, 215, 0, 0.9);
+      color: black;
+      padding: 10px;
+      border-radius: 10px;
+      font-weight: bold;
+      text-align: left;
+    }
+  </style>
 </head>
 <body>
 
-<!-- YouTube-Video-Layer -->
+<!-- Video Hintergrund -->
 <div id="yt-background"></div>
 
-<!-- Highscore-Box -->
+<!-- Bestenliste -->
 <div id="highscoreBox">Lade Bestenliste…</div>
 
-<!-- Start-Screen -->
-<div id="startScreen">
-  <h1>Willkommen zum Spiel!</h1>
-  <input id="playerName" placeholder="Gib deinen Namen ein" />
+<!-- Start -->
+<div id="startScreen" style="display: flex;">
+  <h1>Willkommen!</h1>
+  <input id="playerName" placeholder="Dein Name" />
   <button id="startBtn" onclick="startGame()" disabled>Start</button>
 </div>
 
-<!-- Spiel-Bereich -->
+<!-- Spiel -->
 <div id="gameArea">
-  <button id="goBackButton" onclick="goBackToSubway()">Go back to Subway</button>
-  <div id="congrats">Gratulation you made it</div>
-
   <div id="points">Punkte: 0</div>
-  <button onclick="addPoint()">Punkt sammeln</button>
 
-  <h2>Shop</h2>
-  <button id="autoclickerButton" onclick="buyAutoclicker()">Autoclicker kaufen (100 Punkte)</button>
-  <button id="bgButton" onclick="buyBackground()">Subway Surfer YT-Hintergrund kaufen (1000 Punkte)</button>
-  <button id="finalButton" onclick="buyFinalVideo()">Finales Video aktivieren (2 000 000 Punkte)</button>
+  <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+    <button onclick="addPoint()">Punkt sammeln</button>
+    <button id="autoclickerButton" onclick="buyAutoclicker()">Autoclicker kaufen (100 Punkte)</button>
+    <button onclick="buyBackground()">Subway Surfer aktivieren (1000 Punkte)</button>
+    <button onclick="buyFinalVideo()">Finales Video (2.000.000 Punkte)</button>
+  </div>
+
+  <div id="congrats" style="display:none; margin-top: 20px; color: yellow; font-size: 20px;">🎉 Gratulation, du hast es geschafft!</div>
+  <button id="goBackButton" onclick="goBackToSubway()" style="display:none;">Zurück zu Subway</button>
 </div>
 
 <script>
-/* ---------- jsonbin.io-Daten ------------ */
-const BIN_ID  = "686c0bce8a456b7966bcf833";
-const API_KEY = "HIER_DEIN_API_KEY_EINFÜGEN";      //  <<<<<<  einsetzen!
+const BIN_ID = "686c0bce8a456b7966bcf833";
+const API_KEY = "$2a$10$MifJqI6TwmVL6pVvln0QfOcFftnPRlTYYSddoieHYW2YUfiHWcRNq";
 const jsonHeaders = {
-  "Content-Type":"application/json",
+  "Content-Type": "application/json",
   "X-Master-Key": API_KEY
 };
 
-/* ---------- Spiel-Variablen ------------- */
 let playerName = "";
 let points = 0;
 let autoclickerSpeed = 1000;
@@ -82,119 +97,141 @@ let bgBought = false;
 let finalBought = false;
 let autoclickerPower = 1;
 
-/* ---------- Namenseingabe aktiviert Start ---------- */
-playerNameInput = document.getElementById("playerName");
-playerNameInput.addEventListener("input",()=>(
-  document.getElementById("startBtn").disabled = !playerNameInput.value.trim()
-));
+document.getElementById("playerName").addEventListener("input", () => {
+  document.getElementById("startBtn").disabled = !document.getElementById("playerName").value.trim();
+});
 
-/* ---------- Highscore-Funktionen ---------- */
-async function loadHighscores(){
-  try{
-    const r = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`,{headers:jsonHeaders});
-    const data = await r.json();
-    const scores = (data.record && data.record.scores) || [];
-    const box = document.getElementById("highscoreBox");
-    box.innerHTML = "<strong>🏆 Bestenliste</strong><br>";
-    scores.forEach((e,i)=> box.innerHTML += `${i+1}. ${e.name}: ${e.score}<br>`);
-  }catch(err){
-    console.error(err);
-    document.getElementById("highscoreBox").textContent="Highscore-Laden fehlgeschlagen";
-  }
+function startGame() {
+  playerName = document.getElementById("playerName").value.trim();
+  if (!playerName) return;
+  document.getElementById("startScreen").style.display = "none";
+  document.getElementById("gameArea").style.display = "block";
+  updatePointsDisplay();
+  updateAutoclickerButton();
+  loadHighscores();
+  setInterval(loadHighscores, 2000); // Automatisch neu laden alle 2 Sekunden
 }
 
-async function saveScore(name,score){
-  try{
-    // Aktuelle Liste holen
-    const resp = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`,{headers:jsonHeaders});
-    const data = await resp.json();
-    const list = (data.record && data.record.scores) || [];
-    list.push({name,score});
-    list.sort((a,b)=> b.score - a.score);
-    const top10 = list.slice(0,10);
-    // Zurückschreiben
-    await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`,{
-      method:"PUT",headers:jsonHeaders,body:JSON.stringify({scores:top10})
-    });
-  }catch(e){console.error("Score-Speichern fehlgeschlagen",e);}
-}
-
-/* ---------- Spiel-Funktionen ------------ */
-function startGame(){
-  playerName = playerNameInput.value.trim();
-  if(!playerName) return;
-  document.getElementById("startScreen").style.display="none";
-  document.getElementById("gameArea").style.display="flex";
-  loadHighscores();                    // Highscores laden
-  alert(`Viel Spaß, ${playerName}!`);
-}
-
-function updatePointsDisplay(){
+function updatePointsDisplay() {
   document.getElementById("points").textContent = `Punkte: ${points}`;
 }
 
-function updateAutoclickerButton(){
-  document.getElementById("autoclickerButton").textContent =
-    `Autoclicker kaufen (${autoclickerPrice} Punkte)`;
+function updateAutoclickerButton() {
+  document.getElementById("autoclickerButton").textContent = `Autoclicker kaufen (${autoclickerPrice} Punkte)`;
 }
 
-function addPoint(){ points++; updatePointsDisplay(); }
-
-function buyAutoclicker(){
-  if(points < autoclickerPrice) return alert("Nicht genug Punkte!");
-  points -= autoclickerPrice;
-  autoclickerPrice += 50;
-  autoclickerSpeed /= 2;
-  updatePointsDisplay(); updateAutoclickerButton();
-  startOrUpdateAutoclicker();
-  alert(`Autoclicker gekauft! Tempo: ${autoclickerSpeed} ms`);
+function addPoint() {
+  points++;
+  updatePointsDisplay();
+  saveScore(playerName, points);
 }
 
-function startOrUpdateAutoclicker(){
+function buyAutoclicker() {
+  if (points >= autoclickerPrice) {
+    points -= autoclickerPrice;
+    autoclickerPrice += 50;
+    autoclickerSpeed /= 2;
+    startOrUpdateAutoclicker();
+    updatePointsDisplay();
+    updateAutoclickerButton();
+    saveScore(playerName, points);
+  } else {
+    alert("Nicht genug Punkte");
+  }
+}
+
+function startOrUpdateAutoclicker() {
   clearInterval(autoclickerInterval);
-  autoclickerInterval = setInterval(()=>{points += autoclickerPower; updatePointsDisplay();}, autoclickerSpeed);
+  autoclickerInterval = setInterval(() => {
+    points += autoclickerPower;
+    updatePointsDisplay();
+    saveScore(playerName, points);
+  }, autoclickerSpeed);
 }
 
-function buyBackground(){
-  if(bgBought) return alert("Subway-Hintergrund schon aktiv!");
-  if(points < 1000) return alert("Nicht genug Punkte!");
-  points -= 1000; bgBought=true; updatePointsDisplay();
+function buyBackground() {
+  if (bgBought) return alert("Schon aktiviert");
+  if (points >= 1000) {
+    points -= 1000;
+    autoclickerPower = 2000;
+    startOrUpdateAutoclicker();
+    updatePointsDisplay();
+    showSubwayVideo();
+    bgBought = true;
+    saveScore(playerName, points);
+  } else {
+    alert("Nicht genug Punkte");
+  }
+}
+
+function showSubwayVideo() {
+  const id = "vTfD20dbxho";
+  document.getElementById("yt-background").innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}" frameborder="0" allow="autoplay" allowfullscreen></iframe>`;
+}
+
+function buyFinalVideo() {
+  if (finalBought) return alert("Schon aktiviert");
+  if (points >= 2000000) {
+    points -= 2000000;
+    updatePointsDisplay();
+    finalBought = true;
+    const id = "AgpWX18dby4";
+    document.getElementById("yt-background").innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}" frameborder="0" allow="autoplay" allowfullscreen></iframe>`;
+    document.getElementById("congrats").style.display = "block";
+    document.getElementById("goBackButton").style.display = "inline-block";
+    saveScore(playerName, points);
+  } else {
+    alert("Nicht genug Punkte");
+  }
+}
+
+function goBackToSubway() {
   showSubwayVideo();
-  autoclickerPower = 2000; if(autoclickerInterval) startOrUpdateAutoclicker();
-  alert("Subway Surfer Hintergrund aktiviert!");
+  document.getElementById("congrats").style.display = "none";
+  document.getElementById("goBackButton").style.display = "none";
 }
 
-function showSubwayVideo(){
-  const id="vTfD20dbxho";
-  document.getElementById("yt-background").innerHTML=
-    `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}" frameborder="0" allow="autoplay" allowfullscreen></iframe>`;
+async function loadHighscores() {
+  try {
+    const r = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: jsonHeaders });
+    const data = await r.json();
+    const scores = data.record.scores || [];
+    const box = document.getElementById("highscoreBox");
+    box.innerHTML = "<strong>🏆 Bestenliste</strong><br>";
+    scores.forEach((e, i) => {
+      box.innerHTML += `${i + 1}. ${e.name}: ${e.score}<br>`;
+    });
+  } catch (err) {
+    console.error("Fehler beim Laden:", err);
+    document.getElementById("highscoreBox").textContent = "Fehler beim Laden!";
+  }
 }
 
-function buyFinalVideo(){
-  if(finalBought) return alert("Finales Video schon aktiv!");
-  if(points < 2000000) return alert("Nicht genug Punkte!");
-  points -= 2000000; finalBought=true; updatePointsDisplay();
-
-  const id="AgpWX18dby4";
-  document.getElementById("yt-background").innerHTML=
-    `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}" frameborder="0" allow="autoplay" allowfullscreen></iframe>`;
-
-  document.getElementById("congrats").style.display="block";
-  document.getElementById("goBackButton").style.display="inline-block";
-  alert("Gratulation you made it!");
-
-  /* ------------- Score speichern & Liste neu laden -------------- */
-  saveScore(playerName, points).then(loadHighscores);
+async function saveScore(name, score) {
+  try {
+    const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+      method: "GET",
+      headers: jsonHeaders,
+    });
+    const data = await response.json();
+    const scores = data.record.scores || [];
+    const existing = scores.find(s => s.name === name);
+    if (existing) {
+      existing.score = Math.max(existing.score, score);
+    } else {
+      scores.push({ name, score });
+    }
+    scores.sort((a, b) => b.score - a.score);
+    const top10 = scores.slice(0, 10);
+    await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+      method: "PUT",
+      headers: jsonHeaders,
+      body: JSON.stringify({ scores: top10 }),
+    });
+  } catch (e) {
+    console.error("Fehler beim Speichern:", e);
+  }
 }
-
-function goBackToSubway(){
-  showSubwayVideo();
-  document.getElementById("goBackButton").style.display="none";
-  document.getElementById("congrats").style.display="none";
-}
-
-/* ---------- Buttons initial ---------- */
-updateAutoclickerButton();
 </script>
 </body>
 </html>
