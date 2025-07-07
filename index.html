@@ -44,6 +44,14 @@
       position: relative;
       z-index: 2;
       display: none;
+      text-align: center;
+    }
+    #goBackButton {
+      display: none;
+      font-size: 1em;
+      padding: 10px 20px;
+      margin-bottom: 10px;
+      z-index: 3;
     }
     button {
       font-size: 1.2em;
@@ -58,6 +66,7 @@
 
   <div id="yt-background"></div>
 
+  <button id="goBackButton" onclick="goBackToSubway()">Go back to Subway</button>
   <div id="congrats">Gratulation you made it</div>
   <div id="points">Punkte: 0</div>
 
@@ -94,7 +103,7 @@
       if (points >= autoclickerPrice) {
         points -= autoclickerPrice;
         autoclickerPrice += 50;
-        autoclickerSpeed = autoclickerSpeed / 2;
+        autoclickerSpeed /= 2;
         updatePointsDisplay();
         updateAutoclickerButton();
         startOrUpdateAutoclicker();
@@ -125,24 +134,29 @@
         updatePointsDisplay();
         bgBought = true;
 
-        const videoId = "vTfD20dbxho";
-        const iframe = document.createElement('iframe');
-        iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}`;
-        iframe.frameBorder = '0';
-        iframe.allow = 'autoplay';
-        iframe.allowFullscreen = true;
-
-        document.getElementById('yt-background').appendChild(iframe);
-        alert("Subway Surfer YouTube-Hintergrund aktiviert!");
+        showSubwayVideo();
 
         // Autoclicker aufrüsten
         autoclickerPower = 2000;
         if (autoclickerInterval !== null) {
           startOrUpdateAutoclicker();
         }
+
+        alert("Subway Surfer YouTube-Hintergrund aktiviert!");
       } else {
         alert("Nicht genug Punkte!");
       }
+    }
+
+    function showSubwayVideo() {
+      document.getElementById('yt-background').innerHTML = '';
+      const subwayVideoId = "vTfD20dbxho";
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube.com/embed/${subwayVideoId}?autoplay=1&mute=1&loop=1&playlist=${subwayVideoId}`;
+      iframe.frameBorder = '0';
+      iframe.allow = 'autoplay';
+      iframe.allowFullscreen = true;
+      document.getElementById('yt-background').appendChild(iframe);
     }
 
     function buyFinalVideo() {
@@ -156,22 +170,31 @@
         updatePointsDisplay();
         finalBought = true;
 
+        // Vorherige Videos entfernen
         document.getElementById('yt-background').innerHTML = '';
 
-        const videoId = "AgpWX18dby4";
+        const finalVideoId = "AgpWX18dby4";
         const iframe = document.createElement('iframe');
-        iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}`;
+        iframe.src = `https://www.youtube.com/embed/${finalVideoId}?autoplay=1&mute=1&loop=1&playlist=${finalVideoId}`;
         iframe.frameBorder = '0';
         iframe.allow = 'autoplay';
         iframe.allowFullscreen = true;
-
         document.getElementById('yt-background').appendChild(iframe);
 
+        // Gratulation & Rückkehr-Button anzeigen
         document.getElementById('congrats').style.display = 'block';
+        document.getElementById('goBackButton').style.display = 'inline-block';
+
         alert("Gratulation you made it!");
       } else {
         alert("Nicht genug Punkte!");
       }
+    }
+
+    function goBackToSubway() {
+      showSubwayVideo();
+      document.getElementById('goBackButton').style.display = 'none';
+      document.getElementById('congrats').style.display = 'none';
     }
 
     updateAutoclickerButton();
