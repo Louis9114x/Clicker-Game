@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="="de">
 <head>
   <meta charset="UTF-8">
-  <title>Punkte Spiel mit Startbildschirm</title>
+  <title>Punkte Spiel mit Startbildschirm & Videos</title>
   <style>
     html, body {
       height: 100%;
       margin: 0;
       overflow: hidden;
     }
+
     body {
       font-family: sans-serif;
       display: flex;
@@ -18,24 +19,7 @@
       background: #111;
       color: white;
       position: relative;
-    }
-
-    #startScreen {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    #gameArea {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    input, button {
-      font-size: 1.2em;
-      padding: 10px;
-      margin: 10px;
+      z-index: 0;
     }
 
     #yt-background {
@@ -44,14 +28,39 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      z-index: 0;
-      pointer-events: none;
+      z-index: -1; /* Hintergrund */
+      pointer-events: none; /* lässt Klicks durch */
       overflow: hidden;
     }
 
     #yt-background iframe {
       width: 100vw;
       height: 100vh;
+    }
+
+    #startScreen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 2;
+    }
+
+    #gameArea {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      z-index: 2;
+    }
+
+    input, button {
+      font-size: 1.2em;
+      padding: 10px;
+      margin: 10px;
+    }
+
+    #points {
+      font-size: 2em;
+      margin-bottom: 20px;
     }
 
     #congrats {
@@ -68,17 +77,16 @@
 </head>
 <body>
 
-  <!-- YouTube Video Hintergrund -->
   <div id="yt-background"></div>
 
-  <!-- Startbildschirm -->
+  <!-- Start -->
   <div id="startScreen">
     <h1>Willkommen zum Spiel!</h1>
     <input type="text" id="playerName" placeholder="Gib deinen Namen ein">
     <button id="startBtn" onclick="startGame()" disabled>Start</button>
   </div>
 
-  <!-- Spielbereich -->
+  <!-- Spiel -->
   <div id="gameArea">
     <button id="goBackButton" onclick="goBackToSubway()">Go back to Subway</button>
     <div id="congrats">Gratulation you made it</div>
@@ -100,13 +108,12 @@
     let finalBought = false;
     let autoclickerPower = 1;
 
-    // Aktiviert Start-Button wenn Name eingetippt ist
+    // Start-Button aktivieren bei Texteingabe
     document.getElementById('playerName').addEventListener('input', () => {
       const name = document.getElementById('playerName').value.trim();
       document.getElementById('startBtn').disabled = name === '';
     });
 
-    // Starte das Spiel
     function startGame() {
       const name = document.getElementById('playerName').value.trim();
       if (name !== '') {
@@ -163,7 +170,6 @@
         points -= 1000;
         updatePointsDisplay();
         bgBought = true;
-
         showSubwayVideo();
 
         // Autoclicker aufrüsten
