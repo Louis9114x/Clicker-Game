@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Punkte Shop mit YouTube-Hintergrund</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+    #yt-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    #yt-background iframe {
+      width: 100vw;
+      height: 100vh;
+    }
+    #points {
+      font-size: 2em;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 2;
+    }
+    #congrats {
+      font-size: 2em;
+      color: yellow;
+      position: relative;
+      z-index: 2;
+      display: none;
+    }
+    button {
+      font-size: 1.2em;
+      padding: 10px 20px;
+      margin: 10px;
+      position: relative;
+      z-index: 2;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="yt-background"></div>
+
+  <div id="congrats">Gratulation you made it</div>
+  <div id="points">Punkte: 0</div>
+
+  <button onclick="addPoint()">Punkt sammeln</button>
+
+  <h2>Shop</h2>
+  <button id="autoclickerButton" onclick="buyAutoclicker()">Autoclicker kaufen (100 Punkte)</button>
+  <button id="bgButton" onclick="buyBackground()">Subway Surfer YT-Hintergrund kaufen (1000 Punkte)</button>
+  <button id="finalButton" onclick="buyFinalVideo()">Finales Video aktivieren (2000000 Punkte)</button>
+
+  <script>
+    let points = 0;
+    let autoclickerSpeed = 1000;
+    let autoclickerInterval = null;
+    let autoclickerPrice = 100;
+    let bgBought = false;
+    let finalBought = false;
+    let autoclickerPower = 1;
+
+    function updatePointsDisplay() {
+      document.getElementById('points').textContent = `Punkte: ${points}`;
+    }
+
+    function updateAutoclickerButton() {
+      document.getElementById('autoclickerButton').textContent = `Autoclicker kaufen (${autoclickerPrice} Punkte)`;
+    }
+
+    function addPoint() {
+      points++;
+      updatePointsDisplay();
+    }
+
+    function buyAutoclicker() {
+      if (points >= autoclickerPrice) {
+        points -= autoclickerPrice;
+        autoclickerPrice += 50;
+        autoclickerSpeed = autoclickerSpeed / 2;
+        updatePointsDisplay();
+        updateAutoclickerButton();
+        startOrUpdateAutoclicker();
+        alert(`Du hast einen Autoclicker gekauft! Neue Geschwindigkeit: ${autoclickerSpeed} ms`);
+      } else {
+        alert("Nicht genug Punkte!");
+      }
+    }
+
+    function startOrUpdateAutoclicker() {
+      if (autoclickerInterval !== null) {
+        clearInterval(autoclickerInterval);
+      }
+      autoclickerInterval = setInterval(() => {
+        points += autoclickerPower;
+        updatePointsDisplay();
+      }, autoclickerSpeed);
+    }
+
+    function buyBackground() {
+      if (bgBought) {
+        alert("Du hast den Subway Surfer Hintergrund schon gekauft!");
+        return;
+      }
+
+      if (points >= 1000) {
+        points -= 1000;
+        updatePointsDisplay();
+        bgBought = true;
+
+        const videoId = "vTfD20dbxho";
+        const iframe = document.createElement('iframe');
+        iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}`;
+        iframe.frameBorder = '0';
+        iframe.allow = 'autoplay';
+        iframe.allowFullscreen = true;
+
+        document.getElementById('yt-background').appendChild(iframe);
+        alert("Subway Surfer YouTube-Hintergrund aktiviert!");
+
+        // Autoclicker aufrüsten
+        autoclickerPower = 2000;
+        if (autoclickerInterval !== null) {
+          startOrUpdateAutoclicker();
+        }
+      } else {
+        alert("Nicht genug Punkte!");
+      }
+    }
+
+    function buyFinalVideo() {
+      if (finalBought) {
+        alert("Du hast das finale Video schon aktiviert!");
+        return;
+      }
+
+      if (points >= 2000000) {
+        points -= 2000000;
+        updatePointsDisplay();
+        finalBought = true;
+
+        document.getElementById('yt-background').innerHTML = '';
+
+        const videoId = "AgpWX18dby4";
+        const iframe = document.createElement('iframe');
+        iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}`;
+        iframe.frameBorder = '0';
+        iframe.allow = 'autoplay';
+        iframe.allowFullscreen = true;
+
+        document.getElementById('yt-background').appendChild(iframe);
+
+        document.getElementById('congrats').style.display = 'block';
+        alert("Gratulation you made it!");
+      } else {
+        alert("Nicht genug Punkte!");
+      }
+    }
+
+    updateAutoclickerButton();
+  </script>
+
+</body>
+</html>
