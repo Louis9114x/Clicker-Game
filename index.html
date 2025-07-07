@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Punkte Shop mit YouTube-Hintergrund</title>
+  <title>Punkte Spiel mit Startbildschirm</title>
   <style>
     html, body {
       height: 100%;
@@ -15,9 +15,29 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      background: #111;
+      color: white;
       position: relative;
-      z-index: 1;
     }
+
+    #startScreen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #gameArea {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    input, button {
+      font-size: 1.2em;
+      padding: 10px;
+      margin: 10px;
+    }
+
     #yt-background {
       position: fixed;
       top: 0;
@@ -28,54 +48,48 @@
       pointer-events: none;
       overflow: hidden;
     }
+
     #yt-background iframe {
       width: 100vw;
       height: 100vh;
     }
-    #points {
-      font-size: 2em;
-      margin-bottom: 20px;
-      position: relative;
-      z-index: 2;
-    }
+
     #congrats {
       font-size: 2em;
       color: yellow;
-      position: relative;
-      z-index: 2;
+      margin-bottom: 10px;
       display: none;
-      text-align: center;
     }
+
     #goBackButton {
       display: none;
-      font-size: 1em;
-      padding: 10px 20px;
-      margin-bottom: 10px;
-      z-index: 3;
-    }
-    button {
-      font-size: 1.2em;
-      padding: 10px 20px;
-      margin: 10px;
-      position: relative;
-      z-index: 2;
     }
   </style>
 </head>
 <body>
 
+  <!-- YouTube Video Hintergrund -->
   <div id="yt-background"></div>
 
-  <button id="goBackButton" onclick="goBackToSubway()">Go back to Subway</button>
-  <div id="congrats">Gratulation you made it</div>
-  <div id="points">Punkte: 0</div>
+  <!-- Startbildschirm -->
+  <div id="startScreen">
+    <h1>Willkommen zum Spiel!</h1>
+    <input type="text" id="playerName" placeholder="Gib deinen Namen ein">
+    <button id="startBtn" onclick="startGame()" disabled>Start</button>
+  </div>
 
-  <button onclick="addPoint()">Punkt sammeln</button>
+  <!-- Spielbereich -->
+  <div id="gameArea">
+    <button id="goBackButton" onclick="goBackToSubway()">Go back to Subway</button>
+    <div id="congrats">Gratulation you made it</div>
+    <div id="points">Punkte: 0</div>
+    <button onclick="addPoint()">Punkt sammeln</button>
 
-  <h2>Shop</h2>
-  <button id="autoclickerButton" onclick="buyAutoclicker()">Autoclicker kaufen (100 Punkte)</button>
-  <button id="bgButton" onclick="buyBackground()">Subway Surfer YT-Hintergrund kaufen (1000 Punkte)</button>
-  <button id="finalButton" onclick="buyFinalVideo()">Finales Video aktivieren (2000000 Punkte)</button>
+    <h2>Shop</h2>
+    <button id="autoclickerButton" onclick="buyAutoclicker()">Autoclicker kaufen (100 Punkte)</button>
+    <button id="bgButton" onclick="buyBackground()">Subway Surfer YT-Hintergrund kaufen (1000 Punkte)</button>
+    <button id="finalButton" onclick="buyFinalVideo()">Finales Video aktivieren (2000000 Punkte)</button>
+  </div>
 
   <script>
     let points = 0;
@@ -85,6 +99,22 @@
     let bgBought = false;
     let finalBought = false;
     let autoclickerPower = 1;
+
+    // Aktiviert Start-Button wenn Name eingetippt ist
+    document.getElementById('playerName').addEventListener('input', () => {
+      const name = document.getElementById('playerName').value.trim();
+      document.getElementById('startBtn').disabled = name === '';
+    });
+
+    // Starte das Spiel
+    function startGame() {
+      const name = document.getElementById('playerName').value.trim();
+      if (name !== '') {
+        document.getElementById('startScreen').style.display = 'none';
+        document.getElementById('gameArea').style.display = 'flex';
+        alert(`Viel Spaß, ${name}!`);
+      }
+    }
 
     function updatePointsDisplay() {
       document.getElementById('points').textContent = `Punkte: ${points}`;
@@ -170,7 +200,6 @@
         updatePointsDisplay();
         finalBought = true;
 
-        // Vorherige Videos entfernen
         document.getElementById('yt-background').innerHTML = '';
 
         const finalVideoId = "AgpWX18dby4";
@@ -181,10 +210,8 @@
         iframe.allowFullscreen = true;
         document.getElementById('yt-background').appendChild(iframe);
 
-        // Gratulation & Rückkehr-Button anzeigen
         document.getElementById('congrats').style.display = 'block';
         document.getElementById('goBackButton').style.display = 'inline-block';
-
         alert("Gratulation you made it!");
       } else {
         alert("Nicht genug Punkte!");
